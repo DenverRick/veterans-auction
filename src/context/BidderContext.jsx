@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
-import { registerBidder } from '../lib/db'
+import { registerBidder, subscribeToBidders } from '../lib/db'
 import { useKiosk } from './KioskContext'
 
 const STORAGE_KEY = 'auction_bidder'
@@ -41,6 +41,18 @@ export function BidderProvider({ children, persist = true }) {
     }
     setBidder(null)
   }, [shouldPersist])
+
+  // Verify stored bidder still exists in database (handles auction reset)
+  useEffect(() => {
+    if (!bidder || !shouldPersist) return
+    const unsub = subscribeToBidders((bidders) => {
+      const stillExists = bidders.some((b) => b.bidderNumber === bidder.bidderNumber)
+      if (!stillExists) {
+        clearRegistration()
+      }
+    })
+    return unsub
+  }, [bidder, shouldPersist, clearRegistration])
 
   // Register with kiosk so it can clear bidder on session reset
   useEffect(() => {
