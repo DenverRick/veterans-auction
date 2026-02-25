@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy: #1a2744;
+  --color-navy-light: #243356;
+  --color-gold: #c5a44e;
+  --color-gold-light: #d4b965;
+  --color-cream: #faf8f0;
+}
+
+@keyframes bid-flash {
+  0% { background-color: var(--color-gold-light); }
+  100% { background-color: transparent; }
+}
+
+@keyframes pulse-gold {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.bid-flash {
+  animation: bid-flash 2s ease-out;
+}
+
+.pulse-gold {
+  animation: pulse-gold 2s ease-in-out infinite;
+}
