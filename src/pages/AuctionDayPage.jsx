@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuction } from '../context/AuctionContext'
-import { subscribeToBidders, setAuctionStatus } from '../lib/db'
+import { subscribeToBidders, setAuctionStatus, resetAuction } from '../lib/db'
 import { AUCTION_STATUS } from '../lib/constants'
 import Clock from '../components/shared/Clock'
 import WinnersTable from '../components/admin/WinnersTable'
@@ -28,8 +28,9 @@ const statusDisplay = {
 export default function AuctionDayPage() {
   const { items, auction } = useAuction()
   const [bidderCount, setBidderCount] = useState(0)
-  const [confirmAction, setConfirmAction] = useState(null) // null | 'open' | 'close' | 'preview'
+  const [confirmAction, setConfirmAction] = useState(null) // null | 'open' | 'close' | 'preview' | 'reset'
   const [updating, setUpdating] = useState(false)
+  const [resetInput, setResetInput] = useState('')
 
   useEffect(() => {
     const unsub = subscribeToBidders((bidders) => setBidderCount(bidders.length))
@@ -46,6 +47,16 @@ export default function AuctionDayPage() {
     setUpdating(true)
     try {
       await setAuctionStatus(newStatus)
+    } finally {
+      setUpdating(false)
+      setConfirmAction(null)
+    }
+  }
+
+  async function executeReset() {
+    setUpdating(true)
+    try {
+      await resetAuction()
     } finally {
       setUpdating(false)
       setConfirmAction(null)
@@ -70,6 +81,12 @@ export default function AuctionDayPage() {
       body: 'The auction will return to preview mode. Existing bids are preserved.',
       status: AUCTION_STATUS.PREVIEW,
       btnClass: 'bg-gray-500 hover:bg-gray-600',
+    },
+    reset: {
+      title: 'Reset Entire Auction?',
+      body: 'This will DELETE all bids, all registered bidders, and all bid history. Items are kept. This cannot be undone!',
+      btnClass: 'bg-red-800 hover:bg-red-900',
+      isReset: true,
     },
   }
 
@@ -158,6 +175,17 @@ export default function AuctionDayPage() {
         </a>
       </div>
 
+      {/* Reset Auction */}
+      <div className="mb-6 border-t pt-4">
+        <button
+          onClick={() => { setResetInput(''); setConfirmAction('reset') }}
+          className="w-full bg-red-800 text-white font-bold py-3 rounded-xl text-sm hover:bg-red-900 transition-colors"
+        >
+          Reset Entire Auction
+        </button>
+        <p className="text-xs text-gray-400 text-center mt-1">Deletes all bids, bidders, and history. Items are kept.</p>
+      </div>
+
       {/* Winners Table (shown when closed) */}
       {auction.status === AUCTION_STATUS.CLOSED && (
         <WinnersTable items={items} />
@@ -170,16 +198,29 @@ export default function AuctionDayPage() {
             <p className="text-xl font-bold text-navy mb-2">
               {confirmMessages[confirmAction].title}
             </p>
-            <p className="text-sm text-gray-600 mb-6">
+            <p className="text-sm text-gray-600 mb-4">
               {confirmMessages[confirmAction].body}
             </p>
+            {confirmMessages[confirmAction].isReset && (
+              <div className="mb-4">
+                <p className="text-xs text-red-600 font-bold mb-2">Type RESET to confirm:</p>
+                <input
+                  type="text"
+                  value={resetInput}
+                  onChange={(e) => setResetInput(e.target.value.toUpperCase())}
+                  className="border-2 border-red-300 rounded-lg px-3 py-2 text-center font-mono text-lg w-40 focus:border-red-600 focus:outline-none"
+                  placeholder="RESET"
+                  autoFocus
+                />
+              </div>
+            )}
             <div className="flex gap-3 justify-center">
               <button
-                onClick={() => executeStatusChange(confirmMessages[confirmAction].status)}
-                disabled={updating}
+                onClick={() => confirmMessages[confirmAction].isReset ? executeReset() : executeStatusChange(confirmMessages[confirmAction].status)}
+                disabled={updating || (confirmMessages[confirmAction].isReset && resetInput !== 'RESET')}
                 className={`text-white font-bold py-2 px-6 rounded-lg disabled:opacity-50 transition-colors ${confirmMessages[confirmAction].btnClass}`}
               >
-                {updating ? 'Updating...' : 'Confirm'}
+                {updating ? 'Resetting...' : confirmMessages[confirmAction].isReset ? 'Reset Everything' : 'Confirm'}
               </button>
               <button
                 onClick={() => setConfirmAction(null)}

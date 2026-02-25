@@ -1,4 +1,4 @@
-import { ref, get, set, update, push, onValue, query, limitToLast, increment, runTransaction } from 'firebase/database'
+import { ref, get, set, update, push, remove, onValue, query, limitToLast, increment, runTransaction } from 'firebase/database'
 import { db } from '../firebase'
 
 // --- Read helpers ---
@@ -139,6 +139,37 @@ export async function registerBidder({ firstName, lastInitial, phone, email }) {
   })
 
   return { bidderId, bidderNumber, firstName, lastInitial }
+}
+
+export async function resetAuction() {
+  // Get all items to clear their bid data
+  const itemsSnap = await get(ref(db, 'items'))
+  const items = itemsSnap.val()
+  const updates = {}
+
+  if (items) {
+    Object.keys(items).forEach((id) => {
+      updates[`items/${id}/currentBid`] = null
+      updates[`items/${id}/currentBidderNumber`] = null
+      updates[`items/${id}/currentBidderName`] = null
+      updates[`items/${id}/bidCount`] = 0
+      updates[`items/${id}/lastBidTime`] = null
+    })
+  }
+
+  // Reset auction status and bidder counter
+  updates['auction/status'] = 'preview'
+  updates['auction/nextBidderNumber'] = 101
+
+  // Apply all item + auction updates in one write
+  await update(ref(db), updates)
+
+  // Delete bidders, bid history, and recent bids
+  await Promise.all([
+    remove(ref(db, 'bidders')),
+    remove(ref(db, 'bidHistory')),
+    remove(ref(db, 'recentBids')),
+  ])
 }
 
 export function subscribeToBidders(callback, onError) {
