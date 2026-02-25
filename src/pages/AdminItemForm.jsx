@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { useAuction } from '../context/AuctionContext'
-import { saveItem, updateItem } from '../lib/db'
+import { saveItem, updateItem, deleteItem } from '../lib/db'
 import { uploadItemPhoto } from '../lib/storage'
 import { CATEGORIES, DEFAULT_BID_INCREMENT } from '../lib/constants'
 import PhotoUpload from '../components/admin/PhotoUpload'
@@ -27,6 +27,7 @@ export default function AdminItemForm() {
   const [form, setForm] = useState(emptyItem)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -198,11 +199,32 @@ export default function AdminItemForm() {
 
         <button
           type="submit"
-          disabled={saving || uploading}
+          disabled={saving || uploading || deleting}
           className="w-full bg-navy text-gold font-bold py-3 rounded-lg hover:bg-navy-light disabled:opacity-50 transition-colors"
         >
           {saving ? 'Saving...' : uploading ? 'Uploading photo...' : isEdit ? 'Update Item' : 'Add Item'}
         </button>
+
+        {isEdit && (
+          <button
+            type="button"
+            disabled={saving || deleting}
+            onClick={async () => {
+              if (!window.confirm(`Delete "${form.title}"? This cannot be undone.`)) return
+              setDeleting(true)
+              try {
+                await deleteItem(id)
+                navigate('/admin')
+              } catch (err) {
+                setError('Failed to delete item')
+                setDeleting(false)
+              }
+            }}
+            className="w-full mt-2 bg-white text-red-600 font-bold py-3 rounded-lg border border-red-300 hover:bg-red-50 disabled:opacity-50 transition-colors"
+          >
+            {deleting ? 'Deleting...' : 'Delete Item'}
+          </button>
+        )}
       </form>
     </div>
   )

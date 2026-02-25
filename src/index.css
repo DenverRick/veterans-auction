@@ -25,3 +25,9 @@
 .pulse-gold {
   animation: pulse-gold 2s ease-in-out infinite;
 }
+
+@media print {
+  body {
+    background: white !important;
+  }
+}

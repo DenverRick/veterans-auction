@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom'
 import { useAuction } from '../context/AuctionContext'
+import { useKiosk } from '../context/KioskContext'
 import BidBadge from '../components/bids/BidBadge'
 import BidForm from '../components/bidding/BidForm'
 import { CATEGORIES } from '../lib/constants'
@@ -7,6 +8,8 @@ import { CATEGORIES } from '../lib/constants'
 export default function ItemDetailPage() {
   const { id } = useParams()
   const { items, loading } = useAuction()
+  const { isKiosk } = useKiosk()
+  const catalogPath = isKiosk ? '/kiosk' : '/'
   const item = items.find((i) => i.id === id)
 
   if (loading) {
@@ -17,7 +20,7 @@ export default function ItemDetailPage() {
     return (
       <div className="text-center py-20">
         <p className="text-gray-500 text-lg mb-4">Item not found</p>
-        <Link to="/" className="text-gold hover:text-gold-light underline">
+        <Link to={catalogPath} className="text-gold hover:text-gold-light underline">
           Back to catalog
         </Link>
       </div>
@@ -28,7 +31,7 @@ export default function ItemDetailPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
-      <Link to="/" className="text-gold hover:text-gold-light text-sm mb-4 inline-block no-underline">
+      <Link to={catalogPath} className="text-gold hover:text-gold-light text-sm mb-4 inline-block no-underline">
         &larr; Back to catalog
       </Link>
 

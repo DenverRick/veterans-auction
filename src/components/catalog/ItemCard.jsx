@@ -1,16 +1,19 @@
 import { Link } from 'react-router-dom'
 import BidBadge from '../bids/BidBadge'
+import { useKiosk } from '../../context/KioskContext'
 
 const PLACEHOLDER = 'data:image/svg+xml,' + encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" fill="%231a2744"><rect width="400" height="300"/><text x="200" y="160" text-anchor="middle" fill="%23c5a44e" font-size="48" font-family="serif">?</text></svg>'
 )
 
 export default function ItemCard({ item }) {
+  const { isKiosk } = useKiosk()
+  const linkPrefix = isKiosk ? '/kiosk' : ''
   const isRecent = item.lastBidTime && (Date.now() - item.lastBidTime) < 60000
 
   return (
     <Link
-      to={`/item/${item.id}`}
+      to={`${linkPrefix}/item/${item.id}`}
       className={`block bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow no-underline ${isRecent ? 'bid-flash' : ''}`}
     >
       <div className="relative aspect-[4/3] bg-gray-100">

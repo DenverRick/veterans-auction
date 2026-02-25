@@ -1,11 +1,16 @@
-import { createContext, useContext, useState, useCallback } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import { registerBidder } from '../lib/db'
+import { useKiosk } from './KioskContext'
 
 const STORAGE_KEY = 'auction_bidder'
 const BidderContext = createContext(null)
 
-export function BidderProvider({ children }) {
+export function BidderProvider({ children, persist = true }) {
+  const { isKiosk, registerResetCallback } = useKiosk()
+  const shouldPersist = persist && !isKiosk
+
   const [bidder, setBidder] = useState(() => {
+    if (!shouldPersist) return null
     try {
       const stored = localStorage.getItem(STORAGE_KEY)
       return stored ? JSON.parse(stored) : null
@@ -23,15 +28,26 @@ export function BidderProvider({ children }) {
       email: email.trim(),
     })
     const bidderData = { ...result, phone: phone.trim(), email: email.trim() }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(bidderData))
+    if (shouldPersist) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(bidderData))
+    }
     setBidder(bidderData)
     return bidderData
-  }, [])
+  }, [shouldPersist])
 
   const clearRegistration = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY)
+    if (shouldPersist) {
+      localStorage.removeItem(STORAGE_KEY)
+    }
     setBidder(null)
-  }, [])
+  }, [shouldPersist])
+
+  // Register with kiosk so it can clear bidder on session reset
+  useEffect(() => {
+    if (isKiosk) {
+      registerResetCallback(clearRegistration)
+    }
+  }, [isKiosk, registerResetCallback, clearRegistration])
 
   return (
     <BidderContext.Provider value={{ bidder, register, clearRegistration }}>

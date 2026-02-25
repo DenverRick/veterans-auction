@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useBidder } from '../../context/BidderContext'
 import { useAuction } from '../../context/AuctionContext'
+import { useKiosk } from '../../context/KioskContext'
 import { submitBid } from '../../lib/db'
 import { AUCTION_STATUS } from '../../lib/constants'
 import RegisterModal from './RegisterModal'
@@ -8,6 +10,8 @@ import RegisterModal from './RegisterModal'
 export default function BidForm({ item }) {
   const { bidder, clearRegistration } = useBidder()
   const { auction } = useAuction()
+  const { isKiosk, resetSession } = useKiosk()
+  const navigate = useNavigate()
   const [showRegister, setShowRegister] = useState(false)
   const [amount, setAmount] = useState('')
   const [confirming, setConfirming] = useState(false)
@@ -44,12 +48,21 @@ export default function BidForm({ item }) {
       await submitBid(item.id, numAmount, item.title, item.itemNumber, {
         bidderNumber: bidder.bidderNumber,
         displayName,
-        source: 'online',
+        source: isKiosk ? 'kiosk' : 'online',
       })
       setStatus('success')
       setConfirming(false)
       setAmount('')
-      setTimeout(() => setStatus('idle'), 3000)
+
+      if (isKiosk) {
+        // In kiosk mode: show success briefly then reset
+        setTimeout(() => {
+          resetSession()
+          navigate('/kiosk')
+        }, 3000)
+      } else {
+        setTimeout(() => setStatus('idle'), 3000)
+      }
     } catch (err) {
       console.error('Bid submission error:', err)
       setStatus('error')
@@ -112,6 +125,9 @@ export default function BidForm({ item }) {
       <div className="mt-6 bg-green-100 rounded-lg p-4 text-center">
         <p className="text-green-800 font-bold text-lg">You are the high bidder!</p>
         <p className="text-green-700 text-sm mt-1">Bidder #{bidder.bidderNumber}</p>
+        {isKiosk && (
+          <p className="text-green-600 text-xs mt-2">Returning to home screen...</p>
+        )}
       </div>
     )
   }
@@ -152,9 +168,11 @@ export default function BidForm({ item }) {
         </p>
         <p className="text-xs text-gray-400">
           Bidder #{bidder.bidderNumber}
-          <button onClick={clearRegistration} className="ml-2 text-gray-400 hover:text-red-500 underline">
-            Not you?
-          </button>
+          {!isKiosk && (
+            <button onClick={clearRegistration} className="ml-2 text-gray-400 hover:text-red-500 underline">
+              Not you?
+            </button>
+          )}
         </p>
       </div>
 
