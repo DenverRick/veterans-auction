@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import BidBadge from '../bids/BidBadge'
 import { useKiosk } from '../../context/KioskContext'
 import { useBidder } from '../../context/BidderContext'
 
@@ -35,21 +34,22 @@ export default function ItemCard({ item }) {
         {item.donor && (
           <p className="text-xs text-gray-500 mb-2">Donated by {item.donor}</p>
         )}
-        <div className="flex items-end justify-between gap-2">
-          <div>
-            <div className="text-xs text-gray-500">
-              Value: <span className="font-semibold text-gray-700">${item.estimatedValue}</span>
+        <div className="space-y-1">
+          <div className="text-xs text-gray-500">
+            Value: <span className="font-semibold text-gray-700">${item.estimatedValue}</span>
+          </div>
+          {isMyBid && (
+            <div className="text-xs font-bold text-green-600">
+              &#10003; My Bid: ${item.currentBid}
             </div>
-            {isMyBid && (
-              <div className="text-xs font-semibold text-green-600 mt-1">
-                My Bid: ${item.currentBid}
-              </div>
+          )}
+          <div className="text-xs text-gray-500">
+            {item.currentBid ? (
+              <>Current Bid: <span className="font-bold text-gold text-sm">${item.currentBid}</span></>
+            ) : (
+              <>Starting: <span className="font-semibold text-gray-700">${item.minimumBid}</span></>
             )}
           </div>
-          <BidBadge
-            currentBid={item.currentBid}
-            minimumBid={item.minimumBid}
-          />
         </div>
       </div>
     </Link>

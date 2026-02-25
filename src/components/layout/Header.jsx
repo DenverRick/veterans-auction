@@ -3,7 +3,13 @@ import { useAuction } from '../../context/AuctionContext'
 import { useBidder } from '../../context/BidderContext'
 import { AUCTION_STATUS } from '../../lib/constants'
 
-const statusConfig = {
+const bidderStatusConfig = {
+  [AUCTION_STATUS.PREVIEW]: { label: 'Coming Soon', className: 'bg-gray-500' },
+  [AUCTION_STATUS.OPEN]: { label: 'Bidding Open', className: 'bg-green-600 pulse-gold' },
+  [AUCTION_STATUS.CLOSED]: { label: 'Bidding Closed', className: 'bg-red-600' },
+}
+
+const adminStatusConfig = {
   [AUCTION_STATUS.PREVIEW]: { label: 'Preview', className: 'bg-gray-500' },
   [AUCTION_STATUS.OPEN]: { label: 'Bidding Open', className: 'bg-green-600 pulse-gold' },
   [AUCTION_STATUS.CLOSED]: { label: 'Bidding Closed', className: 'bg-red-600' },
@@ -14,7 +20,8 @@ export default function Header() {
   const { bidder } = useBidder()
   const location = useLocation()
   const isAdminPage = location.pathname.startsWith('/admin')
-  const status = statusConfig[auction.status] || statusConfig.preview
+  const statusMap = isAdminPage ? adminStatusConfig : bidderStatusConfig
+  const status = statusMap[auction.status] || bidderStatusConfig.preview
 
   return (
     <header className="bg-navy text-white shadow-lg">
@@ -33,14 +40,16 @@ export default function Header() {
           <span className={`text-xs font-bold px-3 py-1 rounded-full text-white ${status.className}`}>
             {status.label}
           </span>
-          <nav className="hidden sm:flex gap-4 text-sm">
-            <Link to="/" className="text-gray-300 hover:text-white no-underline">
-              Catalog
-            </Link>
-            <Link to="/tv" className="text-gray-300 hover:text-white no-underline">
-              TV
-            </Link>
-          </nav>
+          {isAdminPage && (
+            <nav className="hidden sm:flex gap-4 text-sm">
+              <Link to="/" className="text-gray-300 hover:text-white no-underline">
+                Catalog
+              </Link>
+              <Link to="/tv" className="text-gray-300 hover:text-white no-underline">
+                TV
+              </Link>
+            </nav>
+          )}
         </div>
       </div>
     </header>

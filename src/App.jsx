@@ -1,11 +1,13 @@
 import { Outlet } from 'react-router-dom'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
+import StatusBanner from './components/layout/StatusBanner'
 
 export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-cream">
       <Header />
+      <StatusBanner />
       <main className="flex-1">
         <Outlet />
       </main>
