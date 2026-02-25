@@ -13,6 +13,7 @@ import AdminDashboard from './pages/AdminDashboard'
 import AdminItemForm from './pages/AdminItemForm'
 import AdminBulkImport from './pages/AdminBulkImport'
 import AdminQRCode from './pages/AdminQRCode'
+import AuctionDayPage from './pages/AuctionDayPage'
 import ProtectedRoute from './components/admin/ProtectedRoute'
 import KioskLayout from './pages/KioskLayout'
 
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
       {
         path: 'admin/qr',
         element: <ProtectedRoute><AdminQRCode /></ProtectedRoute>,
+      },
+      {
+        path: 'admin/auction-day',
+        element: <ProtectedRoute><AuctionDayPage /></ProtectedRoute>,
       },
     ],
   },

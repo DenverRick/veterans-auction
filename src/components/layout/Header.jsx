@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useAuction } from '../../context/AuctionContext'
 import { useBidder } from '../../context/BidderContext'
 import { AUCTION_STATUS } from '../../lib/constants'
@@ -12,6 +12,8 @@ const statusConfig = {
 export default function Header() {
   const { auction } = useAuction()
   const { bidder } = useBidder()
+  const location = useLocation()
+  const isAdminPage = location.pathname.startsWith('/admin')
   const status = statusConfig[auction.status] || statusConfig.preview
 
   return (
@@ -23,7 +25,7 @@ export default function Header() {
           </h1>
         </Link>
         <div className="flex items-center gap-4">
-          {bidder && (
+          {bidder && !isAdminPage && (
             <span className="text-xs font-bold text-gold bg-gold/20 px-2 py-1 rounded">
               Bidder #{bidder.bidderNumber}
             </span>

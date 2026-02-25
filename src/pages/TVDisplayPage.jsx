@@ -1,20 +1,8 @@
 import { useEffect, useState, useRef } from 'react'
 import { useAuction } from '../context/AuctionContext'
 import BidTicker from '../components/bids/BidTicker'
+import Clock from '../components/shared/Clock'
 import { AUCTION_STATUS } from '../lib/constants'
-
-function Clock() {
-  const [time, setTime] = useState(new Date())
-  useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000)
-    return () => clearInterval(timer)
-  }, [])
-  return (
-    <span className="font-mono">
-      {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-    </span>
-  )
-}
 
 export default function TVDisplayPage() {
   const { items, auction } = useAuction()
