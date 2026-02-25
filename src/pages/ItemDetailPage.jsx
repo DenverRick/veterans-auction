@@ -37,7 +37,7 @@ export default function ItemDetailPage() {
 
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         {item.photoURL && (
-          <div className="aspect-[16/9] bg-gray-100">
+          <div className="max-h-64 overflow-hidden bg-gray-100">
             <img
               src={item.photoURL}
               alt={item.title}

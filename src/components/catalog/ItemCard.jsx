@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import BidBadge from '../bids/BidBadge'
 import { useKiosk } from '../../context/KioskContext'
+import { useBidder } from '../../context/BidderContext'
 
 const PLACEHOLDER = 'data:image/svg+xml,' + encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" fill="%231a2744"><rect width="400" height="300"/><text x="200" y="160" text-anchor="middle" fill="%23c5a44e" font-size="48" font-family="serif">?</text></svg>'
@@ -8,8 +9,10 @@ const PLACEHOLDER = 'data:image/svg+xml,' + encodeURIComponent(
 
 export default function ItemCard({ item }) {
   const { isKiosk } = useKiosk()
+  const { bidder } = useBidder()
   const linkPrefix = isKiosk ? '/kiosk' : ''
   const isRecent = item.lastBidTime && (Date.now() - item.lastBidTime) < 60000
+  const isMyBid = bidder?.bidderNumber && item.currentBidderNumber === bidder.bidderNumber
 
   return (
     <Link
@@ -33,8 +36,15 @@ export default function ItemCard({ item }) {
           <p className="text-xs text-gray-500 mb-2">Donated by {item.donor}</p>
         )}
         <div className="flex items-end justify-between gap-2">
-          <div className="text-xs text-gray-500">
-            Value: <span className="font-semibold text-gray-700">${item.estimatedValue}</span>
+          <div>
+            <div className="text-xs text-gray-500">
+              Value: <span className="font-semibold text-gray-700">${item.estimatedValue}</span>
+            </div>
+            {isMyBid && (
+              <div className="text-xs font-semibold text-green-600 mt-1">
+                My Bid: ${item.currentBid}
+              </div>
+            )}
           </div>
           <BidBadge
             currentBid={item.currentBid}
