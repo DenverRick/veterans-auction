@@ -54,7 +54,17 @@ export default function CatalogPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-navy mb-4">Auction Items</h2>
+        <div className="flex items-center gap-4 mb-4">
+          <h2 className="text-2xl font-bold text-navy">Auction Items</h2>
+          <a
+            href="https://docs.google.com/document/d/1Fc21aaoA2j9SAlTdq_mZJRNlQd8-pSxlAni_M3on1a0/edit?usp=sharing"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-medium text-white bg-navy px-3 py-1.5 rounded hover:opacity-90 transition-opacity"
+          >
+            Payment Instructions
+          </a>
+        </div>
         <div className="flex flex-col sm:flex-row gap-4 mb-4">
           <SearchBar value={search} onChange={setSearch} />
           <SortSelect value={sortKey} onChange={setSortKey} />
