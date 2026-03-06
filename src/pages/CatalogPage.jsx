@@ -57,7 +57,7 @@ export default function CatalogPage() {
         <div className="flex items-center gap-4 mb-4">
           <h2 className="text-2xl font-bold text-navy">Auction Items</h2>
           <a
-            href="https://docs.google.com/document/d/1Fc21aaoA2j9SAlTdq_mZJRNlQd8-pSxlAni_M3on1a0/edit?usp=sharing"
+            href="https://docs.google.com/document/d/1pk87K5g6vX8z6s1j8Wh9xK0y4BdvPYA1/edit?usp=sharing&ouid=100688328439810753632&rtpof=true&sd=true"
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm font-medium text-white bg-navy px-3 py-1.5 rounded hover:opacity-90 transition-opacity"
